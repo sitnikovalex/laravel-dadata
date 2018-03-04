@@ -31,15 +31,10 @@
                 "Fomvasss\\Dadata\\DadataServiceProvider"
             ],
             "aliases": [
-                {
-                    "DadataSuggest": "Fomvasss\\Dadata\\Facades\\DadataSuggest"
-                },
-                {
-                    "DadataClean": "Fomvasss\\Dadata\\Facades\\DadataClean"
-                }
+                {"DadataSuggest": "Fomvasss\\Dadata\\Facades\\DadataSuggest"},
+                {"DadataClean": "Fomvasss\\Dadata\\Facades\\DadataClean"}
             ]
         }
-        
     },
     "minimum-stability": "dev",
     "prefer-stable": true
