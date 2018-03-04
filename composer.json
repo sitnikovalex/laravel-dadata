@@ -24,5 +24,21 @@
         "psr-4": {
             "Fomvasss\\Dadata\\": "src"
         }
+    },
+    "extra": {
+        "laravel":{
+            "providers": [
+                "Fomvasss\\Dadata\\DadataServiceProvider"
+            ],
+            "aliases": [
+                {
+                    "DadataSuggest": "Fomvasss\\Dadata\\Facades\\DadataSuggest"
+                },
+                {
+                    "DadataClean": "Fomvasss\\Dadata\\Facades\\DadataClean"
+                }
+            ]
+        }
+        
     }
 }
