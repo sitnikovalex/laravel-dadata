@@ -18,11 +18,24 @@
     ],
     "require": {
         "php": ">=5.5.0",
-        "guzzlehttp/guzzle": "6.2.*"
+        "guzzlehttp/guzzle": "^6.2.*"
     },
     "autoload": {
         "psr-4": {
             "Fomvasss\\Dadata\\": "src"
         }
-    }
+    },
+    "extra": {
+        "laravel":{
+            "providers": [
+                "Fomvasss\\Dadata\\DadataServiceProvider"
+            ],
+            "aliases": [
+                {"DadataSuggest": "Fomvasss\\Dadata\\Facades\\DadataSuggest"},
+                {"DadataClean": "Fomvasss\\Dadata\\Facades\\DadataClean"}
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
