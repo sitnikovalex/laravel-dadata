@@ -3,25 +3,20 @@
 Пакет работы с сервисом DaData.ru, для исправления синтаксических ошибок в информации контактных данных клиентов сайта и вывода подсказок поля форм.
 
 ## Установка
-Добавить в composer.json в секцию "require":
-```
-"fomvasss/laravel-dadata": "^1.0",
-```
-и запустить:
-```bash
-composer update
-```
-или же просто запустить
+Запустить:
 ```bash
 composer require "fomvasss/laravel-dadata"
 ```
+---
+***Для Laravel < 5.5 :***
 Зарегистрировать service-provider (config/app.php):
 ```php
   Fomvasss\Dadata\DadataServiceProvider::class,
 ```
+---
 Опубликовать конфиг: 
 ```bash
-php artisan vendor:publish --provider="Fomvasss\Dadata\DadataServiceProvider" --tag="config"
+php artisan vendor:publish --provider="Fomvasss\Dadata\DadataServiceProvider"
 ```
 Ввести токет (и ключ для API стандартизации) в config/dadata.php или .env
 ```php

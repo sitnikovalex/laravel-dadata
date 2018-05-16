@@ -35,7 +35,5 @@
                 {"DadataClean": "Fomvasss\\Dadata\\Facades\\DadataClean"}
             ]
         }
-    },
-    "minimum-stability": "dev",
-    "prefer-stable": true
+    }
 }
