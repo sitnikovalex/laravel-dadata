@@ -7,13 +7,12 @@
     "authors": [
         {
             "role": "Company",
-            "name": "WebWest",
-            "homepage": "http://web-west.net.ua"
+            "name": "WebWest"
         },
         {
             "role": "Developer",
             "name": "Fomin Vasyl",
-            "email": "fomin.vasil@gmail.com"
+            "email": "fomvasss@gmail.com"
         }
     ],
     "require": {
@@ -30,10 +29,10 @@
             "providers": [
                 "Fomvasss\\Dadata\\DadataServiceProvider"
             ],
-            "aliases": [
-                {"DadataSuggest": "Fomvasss\\Dadata\\Facades\\DadataSuggest"},
-                {"DadataClean": "Fomvasss\\Dadata\\Facades\\DadataClean"}
-            ]
+            "aliases": {
+                "DadataSuggest": "Fomvasss\\Dadata\\Facades\\DadataSuggest",
+                "DadataClean": "Fomvasss\\Dadata\\Facades\\DadataClean"
+            }
         }
     }
 }
