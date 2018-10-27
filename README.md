@@ -8,10 +8,14 @@
 composer require "fomvasss/laravel-dadata"
 ```
 ---
-***Для Laravel < 5.5 :***
-Зарегистрировать service-provider (config/app.php):
+***Для Laravel < 5.5:***
+Зарегистрировать service-provider в config/app.php:
 ```php
   Fomvasss\Dadata\DadataServiceProvider::class,
+```
+Для Lumen добавить в bootstrap/app.php:
+```php
+$app->withFacades();
 ```
 ---
 Опубликовать конфиг: 

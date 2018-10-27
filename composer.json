@@ -22,7 +22,10 @@
     "autoload": {
         "psr-4": {
             "Fomvasss\\Dadata\\": "src"
-        }
+        },
+        "files": [
+            "src/helpers.php"
+        ]
     },
     "extra": {
         "laravel":{

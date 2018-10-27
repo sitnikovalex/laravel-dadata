@@ -1,5 +1,9 @@
 # Changelog for Laravel DaData
 
+## 2.0.0 (2018-10-27)
+
+- Добавлена поддержка Lumen
+
 ## 1.0.0 (2017-05-16)
 
-- Creating and testing a package
+- Создание и тестирование пакета

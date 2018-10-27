@@ -19,12 +19,6 @@ class DadataServiceProvider extends ServiceProvider
         $publishPath = config_path('dadata.php');
 
         $this->publishes([$configPath => $publishPath], 'config');
-
-        $loader = AliasLoader::getInstance();
-        $loader->alias('DadataClean', ClientClean::class);
-
-        $loaderHint = AliasLoader::getInstance();
-        $loaderHint->alias('DadataSuggest', ClientSuggest::class);
     }
 
     /**
