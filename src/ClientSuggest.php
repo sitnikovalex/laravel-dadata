@@ -9,13 +9,11 @@ namespace Fomvasss\Dadata;
  */
 class ClientSuggest
 {
-
     protected $token;
 
     protected $config;
 
-    protected $baseUrlsuggestions = 'http://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/';
-
+    protected $baseUrl = 'https://suggestions.dadata.ru/suggestions/api/4_1/rs/';
 
     /**
      * ClientHint constructor.
@@ -26,10 +24,36 @@ class ClientSuggest
         $this->token = $this->config['token'];
     }
 
+    /**
+     * @param string $type
+     * @param array $fields
+     * @return bool|mixed|string
+     */
     public function suggest($type, $fields)
     {
+        return $this->request('suggest', $type, $fields);
+    }
+
+    /**
+     * @param string $type
+     * @param array $fields
+     * @return bool|mixed|string
+     */
+    public function findById($type, $fields)
+    {
+        return $this->request('findById', $type, $fields);
+    }
+
+    /**
+     * @param string $url
+     * @param string $type
+     * @param array $fields
+     * @return bool|mixed|string
+     */
+    private function request($url, $type, $fields)
+    {
         $result = false;
-        if ($ch = curl_init($this->baseUrlsuggestions.$type)) {
+        if ($ch = curl_init($this->baseUrl.$url.'/'.$type)) {
             curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_HTTPHEADER, array(
                 'Content-Type: application/json',
@@ -43,6 +67,7 @@ class ClientSuggest
             $result = json_decode($result, true);
             curl_close($ch);
         }
+
         return $result;
     }
 }
