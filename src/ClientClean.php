@@ -2,6 +2,9 @@
 
 namespace Fomvasss\Dadata;
 
+use DateTime;
+use DateTimeZone;
+use Exception;
 use Fomvasss\Dadata\Response\AbstractResponse;
 use Fomvasss\Dadata\Response\Address;
 use Fomvasss\Dadata\Response\Date;
@@ -9,12 +12,16 @@ use Fomvasss\Dadata\Response\Email;
 use Fomvasss\Dadata\Response\Name;
 use Fomvasss\Dadata\Response\Passport;
 use Fomvasss\Dadata\Response\Phone;
+use Fomvasss\Dadata\Response\Statistics;
+use Fomvasss\Dadata\Response\StatisticServices;
 use Fomvasss\Dadata\Response\Vehicle;
-use Exception;
+use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Psr7\Request;
 use InvalidArgumentException;
 use ReflectionClass;
+use ReflectionException;
 use ReflectionProperty;
 use RuntimeException;
 
@@ -35,11 +42,11 @@ class ClientClean
      * Исходное значение пустое или заведомо "мусорное"
      */
     const QC_INVALID = 2;
-    
+
     const METHOD_GET = 'GET';
-    
+
     const METHOD_POST = 'POST';
-    
+
     /**
      * @var string
      */
@@ -74,7 +81,7 @@ class ClientClean
 
     public function __construct()
     {
-        $this->httpClient = new \GuzzleHttp\Client();
+        $this->httpClient = new Client();
         $this->config = config('dadata');
         foreach ($this->config as $name => $value) {
             $this->$name = $value;
@@ -87,150 +94,18 @@ class ClientClean
      * @param string $address
      *
      * @return Address
-     * @throws RuntimeException
-     * @throws InvalidArgumentException
+     * @throws GuzzleException
+     * @throws ReflectionException
      */
     public function cleanAddress($address)
     {
         $response = $this->query($this->prepareUri('clean/address'), [$address]);
         $result = $this->populate(new Address, $response);
         if (!$result instanceof Address) {
-            throw new RuntimeException('Unexpected populate result: ' . get_class($result). '. Expected: ' . Address::class);
+            throw new RuntimeException('Unexpected populate result: ' . get_class($result) . '. Expected: ' . Address::class);
         }
 
         return $result;
-    }
-
-    /**
-     * Cleans phone.
-     *
-     * @param string $phone
-     *
-     * @return Phone
-     * @throws RuntimeException
-     * @throws InvalidArgumentException
-     */
-    public function cleanPhone($phone)
-    {
-        $response = $this->query($this->prepareUri('clean/phone'), [$phone]);
-        $result = $this->populate(new Phone, $response);
-        if (!$result instanceof Phone) {
-            throw new RuntimeException('Unexpected populate result: ' . get_class($result). '. Expected: ' . Phone::class);
-        }
-        return $result;
-    }
-
-    /**
-     * Cleans passport.
-     *
-     * @param string $passport
-     *
-     * @return Passport
-     * @throws RuntimeException
-     * @throws InvalidArgumentException
-     */
-    public function cleanPassport($passport)
-    {
-        $response = $this->query($this->prepareUri('clean/passport'), [$passport]);
-        $result = $this->populate(new Passport(), $response);
-        if (!$result instanceof Passport) {
-            throw new RuntimeException('Unexpected populate result: ' . get_class($result). '. Expected: ' . Passport::class);
-        }
-
-        return $result;
-    }
-
-    /**
-     * Cleans name.
-     *
-     * @param string $name
-     *
-     * @return Name
-     * @throws RuntimeException
-     * @throws InvalidArgumentException
-     */
-    public function cleanName($name)
-    {
-        $response = $this->query($this->prepareUri('clean/name'), [$name]);
-        $result = $this->populate(new Name(), $response);
-        if (!$result instanceof Name) {
-            throw new RuntimeException('Unexpected populate result: ' . get_class($result). '. Expected: ' . Name::class);
-        }
-
-        return $result;
-    }
-
-    /**
-     * Cleans email.
-     *
-     * @param string $email
-     *
-     * @return Email
-     * @throws RuntimeException
-     * @throws InvalidArgumentException
-     */
-    public function cleanEmail($email)
-    {
-        $response = $this->query($this->prepareUri('clean/email'), [$email]);
-        $result = $this->populate(new Email, $response);
-        if (!$result instanceof Email) {
-            throw new RuntimeException('Unexpected populate result: ' . get_class($result). '. Expected: ' . Email::class);
-        }
-
-        return $result;
-    }
-
-    /**
-     * Cleans date.
-     *
-     * @param string $date
-     *
-     * @return Date
-     * @throws RuntimeException
-     * @throws InvalidArgumentException
-     */
-    public function cleanDate($date)
-    {
-        $response = $this->query($this->prepareUri('clean/birthdate'), [$date]);
-        $result = $this->populate(new Date, $response);
-        if (!$result instanceof Date) {
-            throw new RuntimeException('Unexpected populate result: ' . get_class($result). '. Expected: ' . Date::class);
-        }
-
-        return $result;
-    }
-
-    /**
-     * Cleans vehicle.
-     *
-     * @param string $vehicle
-     *
-     * @return Vehicle
-     * @throws RuntimeException
-     * @throws InvalidArgumentException
-     */
-    public function cleanVehicle($vehicle)
-    {
-        $response = $this->query($this->prepareUri('clean/vehicle'), [$vehicle]);
-        $result = $this->populate(new Vehicle, $response);
-        if (!$result instanceof Vehicle) {
-            throw new RuntimeException('Unexpected populate result: ' . get_class($result). '. Expected: ' . Vehicle::class);
-        }
-
-        return $result;
-    }
-
-    /**
-     * Gets balance.
-     *
-     * @return float
-     * @throws RuntimeException
-     * @throws InvalidArgumentException
-     */
-    public function getBalance()
-    {
-        $response = $this->query($this->prepareUri('profile/balance'), [], self::METHOD_GET);
-        return (double) $response;
     }
 
     /**
@@ -244,13 +119,14 @@ class ClientClean
      * @return array
      * @throws RuntimeException
      * @throws InvalidArgumentException
+     * @throws GuzzleException
      */
     protected function query($uri, array $params = [], $method = self::METHOD_POST)
     {
         $request = new Request($method, $uri, [
-            'Content-Type'  => 'application/json',
+            'Content-Type' => 'application/json',
             'Authorization' => 'Token ' . $this->token,
-            'X-Secret'      => $this->secret,
+            'X-Secret' => $this->secret,
         ], 0 < count($params) ? json_encode($params) : null);
 
         $response = $this->httpClient->send($request, $this->httpOptions);
@@ -265,7 +141,7 @@ class ClientClean
             throw new RuntimeException('Empty result');
         }
 
-        return array_shift($result);
+        return (count($result) === 1) ? array_shift($result) : $result;
     }
 
     /**
@@ -283,8 +159,9 @@ class ClientClean
      * Populates object with data.
      *
      * @param AbstractResponse $object
-     * @param array $data
+     * @param array            $data
      * @return AbstractResponse
+     * @throws ReflectionException
      */
     protected function populate(AbstractResponse $object, array $data)
     {
@@ -305,36 +182,200 @@ class ClientClean
      * Guesses and converts property type by phpdoc comment.
      *
      * @param ReflectionProperty $property
-     * @param  mixed $value
+     * @param mixed              $value
      * @return mixed
      */
     protected function getValueByAnnotatedType(ReflectionProperty $property, $value)
     {
         $comment = $property->getDocComment();
+        $result = $value;
         if (preg_match('/@var (.+?)(\|null)? /', $comment, $matches)) {
             switch ($matches[1]) {
                 case 'integer':
                 case 'int':
-                    $value = (int) $value;
+                    $result = (int)$value;
                     break;
                 case 'float':
-                    $value = (float) $value;
+                    $result = (float)$value;
+                    break;
+                case 'StatisticServices':
+                    $result = new StatisticServices;
+                    $result->clean = empty($value['clean']) ? 0 : (int)$value['clean'];
+                    $result->merging = empty($value['merging']) ? 0 : (int)$value['merging'];
+                    $result->suggestions = empty($value['suggestions']) ? 0 : (int)$value['suggestions'];
+                    break;
+                case 'DateTime':
+                    $result = date_create_from_format('Y-m-d', $value, new DateTimeZone('Europe/Moscow'));
                     break;
             }
         }
 
-        return $value;
+        return $result;
+    }
+
+    /**
+     * Cleans phone.
+     *
+     * @param string $phone
+     *
+     * @return Phone
+     * @throws GuzzleException
+     * @throws ReflectionException
+     */
+    public function cleanPhone($phone)
+    {
+        $response = $this->query($this->prepareUri('clean/phone'), [$phone]);
+        $result = $this->populate(new Phone, $response);
+        if (!$result instanceof Phone) {
+            throw new RuntimeException('Unexpected populate result: ' . get_class($result) . '. Expected: ' . Phone::class);
+        }
+        return $result;
+    }
+
+    /**
+     * Cleans passport.
+     *
+     * @param string $passport
+     *
+     * @return Passport
+     * @throws GuzzleException
+     * @throws ReflectionException
+     */
+    public function cleanPassport($passport)
+    {
+        $response = $this->query($this->prepareUri('clean/passport'), [$passport]);
+        $result = $this->populate(new Passport(), $response);
+        if (!$result instanceof Passport) {
+            throw new RuntimeException('Unexpected populate result: ' . get_class($result) . '. Expected: ' . Passport::class);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Cleans name.
+     *
+     * @param string $name
+     *
+     * @return Name
+     * @throws GuzzleException
+     * @throws ReflectionException
+     */
+    public function cleanName($name)
+    {
+        $response = $this->query($this->prepareUri('clean/name'), [$name]);
+        $result = $this->populate(new Name(), $response);
+        if (!$result instanceof Name) {
+            throw new RuntimeException('Unexpected populate result: ' . get_class($result) . '. Expected: ' . Name::class);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Cleans email.
+     *
+     * @param string $email
+     *
+     * @return Email
+     * @throws GuzzleException
+     * @throws ReflectionException
+     */
+    public function cleanEmail($email)
+    {
+        $response = $this->query($this->prepareUri('clean/email'), [$email]);
+        $result = $this->populate(new Email, $response);
+        if (!$result instanceof Email) {
+            throw new RuntimeException('Unexpected populate result: ' . get_class($result) . '. Expected: ' . Email::class);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Cleans date.
+     *
+     * @param string $date
+     *
+     * @return Date
+     * @throws GuzzleException
+     * @throws ReflectionException
+     */
+    public function cleanDate($date)
+    {
+        $response = $this->query($this->prepareUri('clean/birthdate'), [$date]);
+        $result = $this->populate(new Date, $response);
+        if (!$result instanceof Date) {
+            throw new RuntimeException('Unexpected populate result: ' . get_class($result) . '. Expected: ' . Date::class);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Cleans vehicle.
+     *
+     * @param string $vehicle
+     *
+     * @return Vehicle
+     * @throws GuzzleException
+     * @throws ReflectionException
+     */
+    public function cleanVehicle($vehicle)
+    {
+        $response = $this->query($this->prepareUri('clean/vehicle'), [$vehicle]);
+        $result = $this->populate(new Vehicle, $response);
+        if (!$result instanceof Vehicle) {
+            throw new RuntimeException('Unexpected populate result: ' . get_class($result) . '. Expected: ' . Vehicle::class);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Gets balance.
+     *
+     * @return float
+     * @throws RuntimeException
+     * @throws InvalidArgumentException
+     * @throws GuzzleException
+     */
+    public function getBalance()
+    {
+        $response = $this->query($this->prepareUri('profile/balance'), [], self::METHOD_GET);
+        return (double)$response;
+    }
+
+    /**
+     * Usage statistics
+     *
+     * @link https://dadata.ru/api/stat/
+     * @param string|DateTime $date Дата, за которую возвращается статистика в формате Y-m-d
+     * @return AbstractResponse
+     * @throws GuzzleException
+     * @throws ReflectionException
+     */
+    public function getStatistics($date = '')
+    {
+        $response = $this->query($this->prepareUri('stat/daily' . self::formatDateQuery($date)), [], self::METHOD_GET);
+        $result = $this->populate(new Statistics, $response);
+        if (!$result instanceof Statistics) {
+            throw new RuntimeException('Unexpected populate result: ' . get_class($result) . '. Expected: ' . Statistics::class);
+        }
+
+        return $result;
     }
 
     /**
      * @param string $ip
      * @return null|Address
      * @throws Exception
+     * @throws GuzzleException
      */
     public function detectAddressByIp($ip)
     {
         $request = new Request('get', $this->baseUrlGeolocation . '?ip=' . $ip, [
-            'Accept'  => 'application/json',
+            'Accept' => 'application/json',
             'Authorization' => 'Token ' . $this->token,
         ]);
 
@@ -364,9 +405,26 @@ class ClientClean
 
         $address = $this->populate(new Address, $result['location']['data']);
         if (!$address instanceof Address) {
-            throw new RuntimeException('Unexpected populate result: ' . get_class($result). '. Expected: ' . Address::class);
+            throw new RuntimeException('Unexpected populate result: ' . get_class($result) . '. Expected: ' . Address::class);
         }
 
         return $address;
+    }
+
+    /**
+     * @param mixed $val
+     * @return string
+     */
+    private static function formatDateQuery($val)
+    {
+        if (empty($val)) {
+            return '';
+        } elseif (is_string($val)) {
+            return '?date=' . $val;
+        } elseif ($val instanceof DateTime) {
+            return '?date=' . $val->format('Y-m-d');
+        } else {
+            return '';
+        }
     }
 }
