@@ -66,11 +66,27 @@ $response = DadataClean::getStatistics();
 $response = DadataClean::getStatistics(now()->subDays(6));
 print_r($response);
 ```
+
 ### Проверка баланса системи
 ```php
 $response = DadataClean::getBalance();
 ```
 
+### Получение статистики использования всех сервисов
+
+На текущий день:
+
+```php
+$response = DadataClean::getStatistics();
+```
+
+На любую другую дату:
+
+```php
+$response = DadataClean::getStatistics(now()->subDays(6));
+// or
+$response = DadataClean::getStatistics('2019-11-01');
+```
 
 ## Ссылки, документация, API:
 - https://dadata.ru
