@@ -204,6 +204,11 @@ class Address extends AbstractResponse
      * @var string Страна
      */
     public $country;
+    
+    /**
+     * @var string Cтрана iso alfa2
+     */
+    public $country_iso_code;
 
     /**
      * @var string Код ФИАС региона
