@@ -33,12 +33,20 @@ php artisan vendor:publish --provider="Fomvasss\Dadata\DadataServiceProvider"
 ```php
 use Fomvasss\Dadata\Facades\DadataSuggest;
 ```
-Пример использование метода с параметрамы:
-```php
-$result = DadataSuggest::suggest("address", ["query"=>"Москва", "count"=>2]);
-print_r($result);
-```
-Первым параметором может быть: `fio, address, party, email, bank`
+1. Пример использование метода с параметрамы:
+    ```php
+    $result = DadataSuggest::suggest("address", ["query"=>"Москва", "count"=>2]);
+    print_r($result);
+    ```
+    Первым параметором может быть: `fio, address, party, email, bank`
+
+2. Пример использование [поиска по ИНН или ОГРН](https://dadata.ru/api/find-party/) с параметрамы:
+
+    ```php
+    $result = DadataSuggest::partyById('5077746329876', ["branch_type"=>"MAIN"]);
+    print_r($result);
+    ```
+    Первым параметором может быть ИНН, ОГРН или Dadata HID
 
 ### Сервис стандартизации (https://dadata.ru/api/clean/)
 Добавить в клас фасад:
