@@ -62,6 +62,8 @@ $response = DadataClean::cleanName('Срегей владимерович ива
 $response = DadataClean::cleanEmail('serega@yandex/ru');
 $response = DadataClean::cleanDate('24/3/12');
 $response = DadataClean::cleanVehicle('форд фокус');
+$response = DadataClean::getStatistics();
+$response = DadataClean::getStatistics(now()->subDays(6));
 print_r($response);
 ```
 ### Проверка баланса системи
