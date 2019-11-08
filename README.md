@@ -33,14 +33,14 @@ php artisan vendor:publish --provider="Fomvasss\Dadata\DadataServiceProvider"
 ```php
 use Fomvasss\Dadata\Facades\DadataSuggest;
 ```
-1. Пример использование метода с параметрамы:
+1. Пример использование метода с параметрами:
     ```php
     $result = DadataSuggest::suggest("address", ["query"=>"Москва", "count"=>2]);
     print_r($result);
     ```
     Первым параметором может быть: `fio, address, party, email, bank`
 
-2. Пример использование [поиска по ИНН или ОГРН](https://dadata.ru/api/find-party/) с параметрамы:
+2. Пример использование [поиска по ИНН или ОГРН](https://dadata.ru/api/find-party/) с параметрами:
 
     ```php
     $result = DadataSuggest::partyById('5077746329876', ["branch_type"=>"MAIN"]);
