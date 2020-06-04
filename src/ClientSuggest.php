@@ -133,6 +133,13 @@ class ClientSuggest
     protected $url_findById = 'rs/findById/party';
 
     /**
+     * URI поиска банка по БИК
+     *
+     * @var string
+     */
+    protected $url_bankById = 'rs/findById/bank';
+
+    /**
      * @var ClientInterface
      */
     protected $httpClient;
@@ -165,6 +172,21 @@ class ClientSuggest
         $params['query'] = $id;
 
         return $this->query("{$this->base_url}/{$this->version}/{$this->url_findById}", $params);
+    }
+
+    /**
+     * Банк по БИК, SWIFT, ИНН или регистрационному номеру
+     *
+     * @link https://dadata.ru/api/find-bank/
+     * @param string $id     БИК, SWIFT, ИНН
+     * @param array  $params Дополнительные параметры
+     * @return mixed
+     */
+    public function bankById($id, array $params = [])
+    {
+        $params['query'] = $id;
+
+        return $this->query("{$this->base_url}/{$this->version}/{$this->url_bankById}", $params);
     }
 
     /**
